@@ -5,6 +5,7 @@ use anyhow::{Context, Result};
 use serde::{Serialize, Deserialize};
 use std::io::stdin;
 use std::io::Write;
+use colored::*;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ChatMessage {
@@ -23,8 +24,9 @@ async fn main() -> Result<(), anyhow::Error> {
         .context("Failed to read username")?;
 
     let name = name.trim().to_string();
+    let namet = name.clone();
 
-    
+
     let (mut ws_stream, response) = connect_async(args[1].as_str())
         .await.context("Can't connect to server")?;
 
@@ -39,11 +41,18 @@ async fn main() -> Result<(), anyhow::Error> {
                             .map(|dt| dt.format("%H:%M:%S").to_string())
                             .unwrap_or_else(|| "??:??:??".to_string());
                     
-                        println!("\n[{}] {}: {}", 
+                        if namet ==  chat_msg.username {
+                            println!("\n[{}] {}: {}", 
                             time_str,
-                            chat_msg.username, 
-                            chat_msg.text
-                        );
+                            chat_msg.username.green(),
+                            chat_msg.text);
+                        } else {
+                            println!("\n[{}] {}: {}", 
+                            time_str,
+                            chat_msg.username,
+                            chat_msg.text);
+                        };
+                    
                         print!("> ");
                         let _ = std::io::stdout().flush();
                     }
